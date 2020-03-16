@@ -63,6 +63,9 @@ static int bloom_check_add(struct bloom * bloom,
     x = (a + i*b) % bloom->bits;
     if (test_bit_set_bit(bloom->bf, x, add)) {
       hits++;
+    } else if (!add) {
+      // Don't care about the presence of all the bits. Just our own.
+      return 0;
     }
   }
 
@@ -147,6 +150,14 @@ void bloom_free(struct bloom * bloom)
     free(bloom->bf);
   }
   bloom->ready = 0;
+}
+
+
+int bloom_reset(struct bloom * bloom)
+{
+  if (!bloom->ready) return 1;
+  memset(bloom->bf, 0, bloom->bytes);
+  return 0;
 }
 
 
